@@ -7,7 +7,6 @@ import {
 import { act, render, screen, userEvent } from '@testing-library/react-native';
 import * as React from 'react';
 import { Button } from 'react-native';
-import type { SearchBarCommands } from 'react-native-screens';
 
 import {
   createNativeStackNavigator,
@@ -171,8 +170,6 @@ test('controls the search bar in the header with useHeaderSearchBar', async () =
   const Stack = createNativeStackNavigator<StackParamList>();
   const user = userEvent.setup();
 
-  const ref = React.createRef<SearchBarCommands>();
-
   const FocusSearch = () => {
     const searchBar = useHeaderSearchBar();
 
@@ -185,7 +182,7 @@ test('controls the search bar in the header with useHeaderSearchBar', async () =
         <Stack.Screen
           name="A"
           component={FocusSearch}
-          options={{ headerSearchBarOptions: { ref } }}
+          options={{ headerSearchBarOptions: {} }}
         />
       </Stack.Navigator>
     </NavigationContainer>
@@ -195,9 +192,4 @@ test('controls the search bar in the header with useHeaderSearchBar', async () =
 
   expect(mockSearchBarCommand).toHaveBeenCalledTimes(1);
   expect(mockSearchBarCommand).toHaveBeenCalledWith('focus');
-
-  // The deprecated `ref` option keeps working alongside the hook
-  ref.current?.blur();
-
-  expect(mockSearchBarCommand).toHaveBeenLastCalledWith('blur');
 });

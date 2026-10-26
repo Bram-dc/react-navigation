@@ -32,14 +32,13 @@ import { HeaderButtonBackground } from './HeaderButtonBackground';
 import { HeaderIcon } from './HeaderIcon';
 import { HeaderSearchBarContext } from './HeaderSearchBarContext';
 
-type Props = Omit<HeaderSearchBarOptions, 'ref'> & {
+type Props = HeaderSearchBarOptions & {
   visible: boolean;
   onClose: () => void;
   tintColor?: ColorValue | undefined;
   pressColor?: ColorValue | undefined;
   pressOpacity?: number | undefined;
   style?: Animated.WithAnimatedValue<StyleProp<ViewStyle>> | undefined;
-  ref?: React.Ref<HeaderSearchBarRef> | undefined;
 };
 
 const INPUT_TYPE_TO_MODE = {
@@ -72,7 +71,6 @@ export function HeaderSearchBar({
   pressColor,
   pressOpacity,
   style,
-  ref,
   ...rest
 }: Props) {
   const navigation = useNavigation();
@@ -178,10 +176,9 @@ export function HeaderSearchBar({
   );
 
   // Expose the handle to `useHeaderSearchBar` in the screen
-  const contextRef = React.use(HeaderSearchBarContext);
+  const ref = React.use(HeaderSearchBarContext);
 
   React.useImperativeHandle(ref, () => handle, [handle]);
-  React.useImperativeHandle(contextRef, () => handle, [handle]);
 
   const textColor = tintColor ?? colors.text;
 

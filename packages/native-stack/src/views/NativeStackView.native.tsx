@@ -242,11 +242,7 @@ const SceneView = React.memo(function SceneView({
   const parentSheetRef = React.use(FormSheetContext);
 
   const sheetRef = React.useRef<SheetCommands>(null);
-  const defaultSearchBarRef = React.useRef<SearchBarCommands>(null);
-
-  // Use the ref from options if specified so that it keeps working alongside `useHeaderSearchBar`
-  const searchBarRef =
-    options.headerSearchBarOptions?.ref ?? defaultSearchBarRef;
+  const searchBarRef = React.useRef<SearchBarCommands>(null);
 
   const isLandscape = useFrameSize((frame) => frame.width > frame.height);
 
@@ -319,9 +315,7 @@ const SceneView = React.memo(function SceneView({
     headerHeight,
     headerShown: header !== undefined ? false : headerShown,
     headerBack,
-    headerSearchBarOptions: options.headerSearchBarOptions
-      ? { ...options.headerSearchBarOptions, ref: searchBarRef }
-      : undefined,
+    headerSearchBarRef: searchBarRef,
   });
 
   const headerContainerRef =
