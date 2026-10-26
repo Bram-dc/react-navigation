@@ -86,6 +86,8 @@ export type HeaderSearchBarOptions = {
    * - `setText` - sets the search bar's content to given value
    * - `clearText` - removes any text present in the search bar input field
    * - `cancelSearch` - cancel the search and close the search bar
+   *
+   * @deprecated Use the `useHeaderSearchBar` hook in the screen instead.
    */
   ref?: React.Ref<HeaderSearchBarRef> | undefined;
   /**

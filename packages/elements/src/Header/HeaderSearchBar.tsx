@@ -30,6 +30,7 @@ import { HeaderBackButton } from './HeaderBackButton';
 import { BUTTON_SIZE, BUTTON_SPACING, HeaderButton } from './HeaderButton';
 import { HeaderButtonBackground } from './HeaderButtonBackground';
 import { HeaderIcon } from './HeaderIcon';
+import { HeaderSearchBarContext } from './HeaderSearchBarContext';
 
 type Props = Omit<HeaderSearchBarOptions, 'ref'> & {
   visible: boolean;
@@ -158,8 +159,7 @@ export function HeaderSearchBar({
     };
   }, [cancelSearch, navigation]);
 
-  React.useImperativeHandle(
-    ref,
+  const handle = React.useMemo<HeaderSearchBarRef>(
     () => ({
       focus: () => {
         inputRef.current?.focus();
@@ -176,6 +176,12 @@ export function HeaderSearchBar({
     }),
     [cancelSearch, clearText]
   );
+
+  // Expose the handle to `useHeaderSearchBar` in the screen
+  const contextRef = React.use(HeaderSearchBarContext);
+
+  React.useImperativeHandle(ref, () => handle, [handle]);
+  React.useImperativeHandle(contextRef, () => handle, [handle]);
 
   const textColor = tintColor ?? colors.text;
 

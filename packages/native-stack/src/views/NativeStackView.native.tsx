@@ -8,6 +8,7 @@ import {
 } from '@react-navigation/elements';
 import {
   ActivityView,
+  HeaderSearchBarContext,
   SafeAreaProviderCompat,
 } from '@react-navigation/elements/internal';
 import {
@@ -31,6 +32,8 @@ import {
   type ScreenProps,
   ScreenStack,
   ScreenStackItem,
+  type SearchBarCommands,
+  type SheetCommands,
 } from 'react-native-screens';
 
 import type {
@@ -42,6 +45,7 @@ import { debounce } from '../utils/debounce';
 import { getModalRouteKeys } from '../utils/getModalRoutesKeys';
 import { AnimatedHeaderHeightContext } from '../utils/useAnimatedHeaderHeight';
 import { useDismissedRouteError } from '../utils/useDismissedRouteError';
+import { FormSheetContext } from '../utils/useFormSheet';
 import { useInvalidPreventRemoveError } from '../utils/useInvalidPreventRemoveError';
 import { useHeaderConfigProps } from './useHeaderConfigProps';
 
@@ -234,6 +238,15 @@ const SceneView = React.memo(function SceneView({
   const isParentHeaderShown = React.use(HeaderShownContext);
   const parentHeaderHeight = React.use(HeaderHeightContext);
   const parentHeaderBack = React.use(HeaderBackContext);
+  const parentSearchBarRef = React.use(HeaderSearchBarContext);
+  const parentSheetRef = React.use(FormSheetContext);
+
+  const sheetRef = React.useRef<SheetCommands>(null);
+  const defaultSearchBarRef = React.useRef<SearchBarCommands>(null);
+
+  // Use the ref from options if specified so that it keeps working alongside `useHeaderSearchBar`
+  const searchBarRef =
+    options.headerSearchBarOptions?.ref ?? defaultSearchBarRef;
 
   const isLandscape = useFrameSize((frame) => frame.width > frame.height);
 
@@ -306,6 +319,9 @@ const SceneView = React.memo(function SceneView({
     headerHeight,
     headerShown: header !== undefined ? false : headerShown,
     headerBack,
+    headerSearchBarOptions: options.headerSearchBarOptions
+      ? { ...options.headerSearchBarOptions, ref: searchBarRef }
+      : undefined,
   });
 
   const headerContainerRef =
@@ -451,12 +467,14 @@ const SceneView = React.memo(function SceneView({
               }}
               style={{ pointerEvents: 'box-none' }}
             >
-              {header({
-                back: headerBack,
-                options,
-                route,
-                navigation,
-              })}
+              <HeaderSearchBarContext.Provider value={searchBarRef}>
+                {header({
+                  back: headerBack,
+                  options,
+                  route,
+                  navigation,
+                })}
+              </HeaderSearchBarContext.Provider>
             </View>
           </View>
         ) : null}
@@ -464,7 +482,24 @@ const SceneView = React.memo(function SceneView({
           value={isParentHeaderShown || headerShown !== false}
         >
           <HeaderBackContext.Provider value={headerBack}>
-            {render()}
+            <HeaderSearchBarContext.Provider
+              value={
+                headerShown !== false
+                  ? searchBarRef
+                  : (parentSearchBarRef ?? searchBarRef)
+              }
+            >
+              <FormSheetContext.Provider
+                value={
+                  // Let screens in nested navigators control the closest sheet
+                  presentation === 'formSheet'
+                    ? sheetRef
+                    : (parentSheetRef ?? sheetRef)
+                }
+              >
+                {render()}
+              </FormSheetContext.Provider>
+            </HeaderSearchBarContext.Provider>
           </HeaderBackContext.Provider>
         </HeaderShownContext.Provider>
       </HeaderHeightContext.Provider>
@@ -500,6 +535,7 @@ const SceneView = React.memo(function SceneView({
         sheetLargestUndimmedDetentIndex={sheetLargestUndimmedDetentIndex}
         sheetGrabberVisible={sheetGrabberVisible}
         sheetInitialDetentIndex={sheetInitialDetentIndex}
+        sheetRef={sheetRef}
         sheetCornerRadius={sheetCornerRadius}
         sheetElevation={sheetElevation}
         sheetExpandsWhenScrolledToEdge={sheetExpandsWhenScrolledToEdge}

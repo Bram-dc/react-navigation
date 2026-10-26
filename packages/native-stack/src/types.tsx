@@ -403,8 +403,14 @@ export type NativeStackNavigationOptions = {
    * If you don't have a `ScrollView`, specify `headerTransparent: false`.
    */
   headerSearchBarOptions?:
-    | (Omit<SearchBarProps, 'onChangeText'> & {
+    | (Omit<SearchBarProps, 'onChangeText' | 'ref'> & {
         onChange?: SearchBarProps['onChangeText'] | undefined;
+        /**
+         * Ref to imperatively update the search bar.
+         *
+         * @deprecated Use the `useHeaderSearchBar` hook from `@react-navigation/elements` in the screen instead.
+         */
+        ref?: SearchBarProps['ref'];
       })
     | undefined;
   /**
@@ -696,6 +702,8 @@ export type NativeStackNavigationOptions = {
    * Additionaly there is `last` value available, when set the sheet will expand initially to last (largest) detent.
    *
    * Defaults to `0` - which represents first detent in the detents array.
+   *
+   * To change the detent after the sheet is opened, use the `useFormSheet` hook in the screen.
    */
   sheetInitialDetentIndex?: number | 'last' | undefined;
   /**
